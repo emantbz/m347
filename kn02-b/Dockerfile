@@ -1,0 +1,5 @@
+FROM mariadb
+
+ENV MYSQL_ROOT_PASSWORD=secret123
+
+EXPOSE 3306
