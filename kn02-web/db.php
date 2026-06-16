@@ -1,6 +1,6 @@
 <?php
         //database
-        $servername = "172.17.0.3";
+        $servername = "kn02b-db";
         $username = "root";
         $password = "secret123";
         $dbname = "mysql";

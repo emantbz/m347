@@ -2,7 +2,7 @@
 
 ## Ziel
 
-In diesem Auftrag wurden die Unterschiede zwischen dem Standard-Docker-Netzwerk (`bridge`) und einem benutzerdefinierten Netzwerk (`tbz`) untersucht.
+In diesem Auftrag wurden die Unterschiede zwischen dem Standard-Docker-Netzwerk (`bridge`) und einem benutzerdefinierten Netzwerk (`tbz`) untersucht. Zusätzlich wurde die Lösung aus KN02 verbessert, indem die Datenbank nicht mehr über eine feste IP-Adresse, sondern über den Containernamen angesprochen wird.
 
 ---
 
@@ -14,92 +14,100 @@ In diesem Auftrag wurden die Unterschiede zwischen dem Standard-Docker-Netzwerk 
 docker network create --subnet=172.18.0.0/16 tbz
 ```
 
+### Erklärung
+
+Erstellt ein eigenes Docker-Netzwerk mit dem Namen `tbz` und dem IP-Bereich `172.18.0.0/16`.
+
 ### Screenshot
 
-![A1](assets/docker-network.png)
-
-*Abbildung A1: Erstelltes Docker-Netzwerk tbz.*
+![A1](assets/a1.png)
 
 ---
 
 # Container erstellen
 
-Folgende Container wurden erstellt:
+## busybox1
 
-- busybox1
-- busybox2
-- busybox3
-- busybox4
+```bash
+docker run -dit --name busybox1 busybox
+```
 
-busybox1 und busybox2 befinden sich im Standardnetzwerk `bridge`.
+## busybox2
 
-busybox3 und busybox4 befinden sich im Netzwerk `tbz`.
+```bash
+docker run -dit --name busybox2 busybox
+```
+
+## busybox3
+
+```bash
+docker run -dit --network tbz --name busybox3 busybox
+```
+
+## busybox4
+
+```bash
+docker run -dit --network tbz --name busybox4 busybox
+```
 
 ### Screenshot
 
-![A2](assets/docker-ps.png)
-
-*Abbildung A2: Laufende BusyBox-Container.*
+![A2](assets/a2.png)
 
 ---
 
 # IP-Adressen der Container
 
-## busybox1
+Die IP-Adressen wurden mit folgendem Befehl ermittelt:
 
-![A3](assets/busybox1-ip.png)
+```bash
+docker inspect busybox1
+docker inspect busybox2
+docker inspect busybox3
+docker inspect busybox4
+```
 
-*Abbildung A3: IP-Adresse von busybox1.*
+### Screenshot
 
----
-
-## busybox2
-
-![A4](assets/busybox2-ip.png)
-
-*Abbildung A4: IP-Adresse von busybox2.*
-
----
-
-## busybox3
-
-![A5](assets/busybox3-ip.png)
-
-*Abbildung A5: IP-Adresse von busybox3.*
-
----
-
-## busybox4
-
-![A6](assets/busybox4-ip.png)
-
-*Abbildung A6: IP-Adresse von busybox4.*
+![A3](assets/a3.png)
 
 ---
 
 # Netzwerkkonfiguration busybox1
 
-## ifconfig
+## Befehl
 
-![A7](assets/busybox1-ifconfig.png)
+```bash
+docker exec -it busybox1 sh
+```
 
-*Abbildung A7: Netzwerkkonfiguration von busybox1.*
+```bash
+ifconfig
+```
+
+### Screenshot
+
+![A4](assets/a4.png)
 
 ---
 
-## Gateway
+# Gateway busybox1
 
-![A8](assets/busybox1-gateway.png)
+## Befehl
 
-*Abbildung A8: Default Gateway von busybox1.*
+```bash
+route -n
+```
+
+### Screenshot
+
+![A5](assets/a5.png)
 
 ---
 
-# Ping-Tests
+# Ping-Tests von busybox1
 
-## Tests von busybox1
-
-Durchgeführt wurden folgende Befehle:
+## Befehle
 
 ```bash
 ping busybox2
@@ -116,17 +124,17 @@ ping <IP-von-busybox3>
 
 ### Screenshot
 
-![A9](assets/ping-tests1.png)
-
-*Abbildung A9: Ping-Tests von busybox1.*
+![A6](assets/a6.png)
 
 ---
 
-## Tests von busybox3
+# Ping-Tests von busybox3
 
-Durchgeführt wurden folgende Befehle:
+## Befehle
 
 ```bash
+docker exec -it busybox3 sh
+
 ping busybox4
 ping <IP-von-busybox4>
 
@@ -141,9 +149,7 @@ ping <IP-von-busybox1>
 
 ### Screenshot
 
-![A10](assets/ping-tests2.png)
-
-*Abbildung A10: Ping-Tests von busybox3.*
+![A7](assets/a7.png)
 
 ---
 
@@ -152,14 +158,14 @@ ping <IP-von-busybox1>
 ## Gemeinsamkeiten
 
 - Alle Container besitzen eine eigene IP-Adresse.
-- Alle Container besitzen ein Default Gateway.
+- Alle Container besitzen ein Gateway.
 - Container im gleichen Netzwerk können miteinander kommunizieren.
 
 ## Unterschiede
 
 - busybox1 und busybox2 befinden sich im Standardnetzwerk `bridge`.
-- busybox3 und busybox4 befinden sich im benutzerdefinierten Netzwerk `tbz`.
-- Container aus unterschiedlichen Netzwerken können sich nicht direkt erreichen.
+- busybox3 und busybox4 befinden sich im Netzwerk `tbz`.
+- Container in unterschiedlichen Netzwerken können sich nicht direkt erreichen.
 
 ## Schlussfolgerung
 
@@ -169,45 +175,101 @@ Docker trennt Netzwerke voneinander. Container können standardmässig nur mit C
 
 # Bezug zu KN02
 
-## In welchem Netzwerk befanden sich Web- und DB-Container?
+## In welchem Netzwerk befanden sich der Web- und der DB-Container?
 
-Die Container `kn02b-web` und `kn02b-db` befanden sich im Standardnetzwerk `bridge`.
+Die Container `kn02b-web` und `kn02b-db` befanden sich ursprünglich im Standardnetzwerk `bridge`.
 
 ---
 
 ## Weshalb funktionierte die Verbindung über die IP-Adresse des DB-Containers?
 
-Die Verbindung funktionierte, weil sich beide Container im selben Docker-Netzwerk befanden und sich dadurch gegenseitig erreichen konnten.
+Da sich beide Container im gleichen Netzwerk befanden, konnte der Web-Container den Datenbank-Container über dessen IP-Adresse erreichen.
 
 ---
 
-## Weshalb ist die Verwendung einer Container-IP nicht ideal?
+## Weshalb ist diese Lösung nicht ideal?
 
-Die IP-Adresse eines Containers kann sich ändern, wenn der Container gelöscht und neu erstellt wird. Dadurch würde die Verbindung nicht mehr funktionieren.
+Die IP-Adresse eines Containers kann sich ändern, wenn der Container gelöscht und neu erstellt wird. Dadurch würde die Verbindung zur Datenbank nicht mehr funktionieren.
 
 ---
 
-## Verbesserungsvorschlag
+# Verbesserungsvorschlag
 
-Ein eigenes Docker-Netzwerk verwenden und statt der IP-Adresse den Containernamen benutzen.
+Statt einer festen IP-Adresse wird ein eigenes Docker-Netzwerk verwendet. Die Verbindung erfolgt über den Containernamen.
 
-Beispiel:
+## Netzwerk erstellen
+
+```bash
+docker network create kn02-net
+```
+
+---
+
+## Datenbankcontainer starten
+
+```bash
+docker run -d \
+--network kn02-net \
+-p 3306:3306 \
+--name kn02b-db \
+emanfarukmujanovic/m347:kn02b-db
+```
+
+---
+
+## Webcontainer starten
+
+```bash
+docker run -d \
+--network kn02-net \
+-p 8083:80 \
+--name kn02b-web \
+emanfarukmujanovic/m347:kn02b-web
+```
+
+---
+
+## Anpassung in db.php
+
+### Vorher
+
+```php
+$servername = "172.19.0.2";
+```
+
+### Nachher
 
 ```php
 $servername = "kn02b-db";
 ```
 
-anstatt:
+---
 
-```php
-$servername = "172.xx.xx.xx";
-```
+## Warum funktioniert das?
 
-Docker besitzt einen integrierten DNS-Dienst und kann Containernamen automatisch auflösen.
+Docker besitzt einen integrierten DNS-Dienst. Container innerhalb desselben Netzwerks können sich gegenseitig über ihren Namen erreichen.
+
+Dadurch bleibt die Verbindung bestehen, auch wenn sich die IP-Adresse des Datenbank-Containers ändert.
 
 ---
 
-## Verwendete Befehle
+# Test der Verbesserung
+
+Nach der Umstellung wurde die Seite `db.php` erneut aufgerufen:
+
+```text
+http://localhost:8083/db.php
+```
+
+Die Verbindung zur Datenbank funktionierte weiterhin erfolgreich.
+
+### Screenshot
+
+![A8](assets/a8.png)
+
+---
+
+# Verwendete Befehle
 
 ```bash
 docker network create --subnet=172.18.0.0/16 tbz
@@ -228,15 +290,20 @@ docker inspect busybox3
 docker inspect busybox4
 
 docker exec -it busybox1 sh
-ifconfig
-route -n
-
 docker exec -it busybox3 sh
+
 ifconfig
+
 route -n
 
 ping busybox2
 ping busybox3
 ping busybox4
 ping busybox1
+
+docker network create kn02-net
+
+docker run -d --network kn02-net -p 3306:3306 --name kn02b-db emanfarukmujanovic/m347:kn02b-db
+
+docker run -d --network kn02-net -p 8083:80 --name kn02b-web emanfarukmujanovic/m347:kn02b-web
 ```
