@@ -20,7 +20,7 @@ Erstellt ein eigenes Docker-Netzwerk mit dem Namen `tbz` und dem IP-Bereich `172
 
 ### Screenshot
 
-![A1](assets/.png)
+![Docker Netzwerk](assets/docker-network.png)
 
 ---
 
@@ -52,7 +52,7 @@ docker run -dit --network tbz --name busybox4 busybox
 
 ### Screenshot
 
-![A2](assets/a2.png)
+![Docker PS](assets/docker-ps.png)
 
 ---
 
@@ -67,9 +67,15 @@ docker inspect busybox3
 docker inspect busybox4
 ```
 
-### Screenshot
+### Screenshots
 
-![A3](assets/a3.png)
+![busybox1 IP](assets/busybox1-ip.png)
+
+![busybox2 IP](assets/busybox2-ip.png)
+
+![busybox3 IP](assets/busybox3-ip.png)
+
+![busybox4 IP](assets/busybox4-ip.png)
 
 ---
 
@@ -87,7 +93,7 @@ ifconfig
 
 ### Screenshot
 
-![A4](assets/a4.png)
+![busybox1 ifconfig](assets/busybox1-ifconfig.png)
 
 ---
 
@@ -101,7 +107,7 @@ route -n
 
 ### Screenshot
 
-![A5](assets/a5.png)
+![busybox1 Gateway](assets/busybox1-gateway.png)
 
 ---
 
@@ -124,7 +130,7 @@ ping <IP-von-busybox3>
 
 ### Screenshot
 
-![A6](assets/a6.png)
+![Ping Tests busybox1](assets/ping-tests1.png)
 
 ---
 
@@ -149,7 +155,7 @@ ping <IP-von-busybox1>
 
 ### Screenshot
 
-![A7](assets/a7.png)
+![Ping Tests busybox3](assets/ping-tests2.png)
 
 ---
 
@@ -177,13 +183,13 @@ Docker trennt Netzwerke voneinander. Container können standardmässig nur mit C
 
 ## In welchem Netzwerk befanden sich der Web- und der DB-Container?
 
-Die Container `kn02b-web` und `kn02b-db` befanden sich ursprünglich im Standardnetzwerk `bridge`.
+Die Container `kn02b-web` und `kn02b-db` befanden sich im selben Docker-Netzwerk und konnten deshalb miteinander kommunizieren.
 
 ---
 
 ## Weshalb funktionierte die Verbindung über die IP-Adresse des DB-Containers?
 
-Da sich beide Container im gleichen Netzwerk befanden, konnte der Web-Container den Datenbank-Container über dessen IP-Adresse erreichen.
+Da sich beide Container im gleichen Netzwerk befanden, konnte der Web-Container den Datenbank-Container direkt über dessen IP-Adresse erreichen.
 
 ---
 
@@ -208,11 +214,7 @@ docker network create kn02-net
 ## Datenbankcontainer starten
 
 ```bash
-docker run -d \
---network kn02-net \
--p 3306:3306 \
---name kn02b-db \
-emanfarukmujanovic/m347:kn02b-db
+docker run -d --network kn02-net -p 3306:3306 --name kn02b-db emanfarukmujanovic/m347:kn02b-db
 ```
 
 ---
@@ -220,11 +222,7 @@ emanfarukmujanovic/m347:kn02b-db
 ## Webcontainer starten
 
 ```bash
-docker run -d \
---network kn02-net \
--p 8083:80 \
---name kn02b-web \
-emanfarukmujanovic/m347:kn02b-web
+docker run -d --network kn02-net -p 8083:80 --name kn02b-web emanfarukmujanovic/m347:kn02b-web
 ```
 
 ---
@@ -265,7 +263,7 @@ Die Verbindung zur Datenbank funktionierte weiterhin erfolgreich.
 
 ### Screenshot
 
-![A8](assets/a8.png)
+![Verbesserung DB](assets/verbesserung-db.png)
 
 ---
 
