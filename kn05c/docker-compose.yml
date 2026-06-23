@@ -1,0 +1,28 @@
+services:
+
+  nginx1:
+    image: nginx
+    container_name: nginx1
+
+    volumes:
+
+      - type: volume
+        source: shared-data
+        target: /volume-data
+
+      - type: bind
+        source: ./bind
+        target: /bind-data
+
+      - type: tmpfs
+        target: /tmp-data
+
+  nginx2:
+    image: nginx
+    container_name: nginx2
+
+    volumes:
+      - shared-data:/volume-data
+
+volumes:
+  shared-data:
