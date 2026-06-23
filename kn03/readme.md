@@ -20,7 +20,7 @@ Erstellt ein eigenes Docker-Netzwerk mit dem Namen `tbz` und dem IP-Bereich `172
 
 ### Screenshot
 
-![A1](assets/a1.png)
+![A1](assets/.png)
 
 ---
 
