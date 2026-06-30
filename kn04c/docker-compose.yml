@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+
+  m347-kn04a-db:
+    image: mariadb:latest
+    container_name: m347-kn04a-db
+
+    environment:
+      MYSQL_ROOT_PASSWORD: secret123
+
+    ports:
+      - "3306:3306"
+
+    networks:
+      m347net:
+
+  m347-kn04a-web:
+    build: ./web
+    container_name: m347-kn04a-web
+
+    ports:
+      - "8083:80"
+
+    depends_on:
+      - m347-kn04a-db
+
+    networks:
+      m347net:
+
+networks:
+  m347net:
+    ipam:
+      config:
+        - subnet: 172.10.0.0/16
+          ip_range: 172.10.5.0/24
+          gateway: 172.10.5.254
