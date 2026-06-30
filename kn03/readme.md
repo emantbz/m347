@@ -159,6 +159,14 @@ ping <IP-von-busybox1>
 
 ---
 
+# Ping Tests über Namen
+![Ping Tests Namen](assets/ping-tests3.png)
+
+### Erklärung
+
+`busybox1` und `busybox2` befinden sich im Standardnetzwerk `bridge`. Dort funktioniert die Kommunikation über Containernamen standardmässig nicht. `busybox3` und `busybox4` befinden sich hingegen im benutzerdefinierten Netzwerk `tbz`, in dem Docker eine automatische Namensauflösung bereitstellt. Deshalb funktioniert `ping busybox4`, während `ping busybox2` über den Containernamen nicht funktioniert.
+
+
 # Gemeinsamkeiten und Unterschiede
 
 ## Gemeinsamkeiten
